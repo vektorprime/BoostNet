@@ -32,21 +32,32 @@ int main()
 	//The boost::asio::connect() function does this for us automatically. 
 	tcp::socket socket(io_context);
 	boost::asio::connect(socket, endpoint);
+	std::cout << "Connected" << std::endl;
 	while (true)
 	{
-		std::array<char, 128> buf{};
-		boost::system::error_code error;
+		//std::array<char, 128> buf{};
+		//boost::system::error_code error;
 		
-		size_t len = socket.read_some(boost::asio::buffer(buf), error);
+		std::string message;
+		std::cin >> message;
+		boost::system::error_code ignored_error;
 
-		if (error == boost::asio::error::eof)
+		boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
+		if (!message.empty())
 		{
-			//break; // Connection closed cleanly by peer.
+			std::cout << "Sent message" << std::endl;
 		}
-		else if (error)
-			throw boost::system::system_error(error); // Some other error.
 
-		std::cout.write(buf.data(), len);
+		//size_t len = socket.read_some(boost::asio::buffer(buf), error);
+
+		//if (error == boost::asio::error::eof)
+		//{
+		//	//break; // Connection closed cleanly by peer.
+		//}
+		//else if (error)
+		//	throw boost::system::system_error(error); // Some other error.
+
+		//std::cout.write(buf.data(), len);
 	}
 
 
