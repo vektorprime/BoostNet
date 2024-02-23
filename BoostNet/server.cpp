@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <boost/asio.hpp>
-#include <thread>
+
 
 using boost::asio::ip::tcp;
 
@@ -22,7 +22,6 @@ int main()
 		tcp::socket socket(io_context);
 		//Wait for a conneciton request (block)
 		acceptor.accept(socket);
-
 		//If we made it this far a client is accessing our socket
 		//send something back
 		std::string message = "Can you hear us buddy?";
