@@ -1,10 +1,23 @@
 #include <iostream>
 #include <string>
 #include <boost/asio.hpp>
-
+#include <thread>
 
 using boost::asio::ip::tcp;
 
+std::mutex lock;
+
+void process_connection(tcp::socket socket)
+{
+	//If we made it this far a client is accessing our socket
+	//send something back
+	boost::system::error_code ignored_error;
+	while (true)
+	{
+		std::string message;
+		boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
+	}
+}
 
 int main()
 {
@@ -14,6 +27,8 @@ int main()
 	// A ip::tcp::acceptor object needs to be created to listen for new connections. It is initialised to listen on TCP port 1337, for IP version 4. 
 	tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 1337));
 
+	std::thread worker1;
+
 	std::cout << "Beginning to listen for connections" << std::endl;
 	bool listen_for_conn = true;
 	while (listen_for_conn)
@@ -22,16 +37,11 @@ int main()
 		tcp::socket socket(io_context);
 		//Wait for a conneciton request (block)
 		acceptor.accept(socket);
-		//If we made it this far a client is accessing our socket
-		//send something back
-		std::string message = "Can you hear us buddy?";
-		boost::system::error_code ignored_error;
-		while (true)
-		{
-			boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-		}
+		worker1 = std::thread(process_connection, std::move(socket));
 
 	}
+
+	worker1.join();
 
 	return 0;
 }
